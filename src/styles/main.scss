@@ -1,0 +1,16 @@
+// ============================================================
+// Main Entry — Gestión Hotelera
+// Fonts → Variables → Bootstrap → Custom
+// ============================================================
+
+// 1. Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+// 2. Bootstrap variable overrides (must come before Bootstrap)
+@import 'variables';
+
+// 3. Bootstrap 5 full build
+@import 'bootstrap/scss/bootstrap';
+
+// 4. Hotel custom styles (overrides + additions)
+@import 'custom';

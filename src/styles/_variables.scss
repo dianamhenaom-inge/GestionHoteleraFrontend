@@ -1,0 +1,92 @@
+// ============================================================
+// Bootstrap 5 Variable Overrides — Hotel Theme (Green)
+// ============================================================
+
+// Brand colors
+$primary:   #00450d;
+$secondary: #106d20;
+$success:   #1a7425;
+$danger:    #ba1a1a;
+$warning:   #f0c040;
+$info:      #174321;
+$light:     #f8faf8;
+$dark:      #191c1b;
+
+// Body
+$body-bg:    #f8faf8;
+$body-color: #191c1b;
+
+// Typography
+$font-family-sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$headings-font-family:   'Manrope', sans-serif;
+$font-size-base:         0.875rem;
+$line-height-base:       1.5;
+
+// Border radius
+$border-radius:    0.25rem;
+$border-radius-sm: 0.125rem;
+$border-radius-lg: 0.5rem;
+$border-radius-pill: 9999px;
+
+// Border
+$border-color: #e1e3e1;
+
+// Cards
+$card-bg:           #ffffff;
+$card-border-color: transparent;
+$card-border-width: 0;
+$card-box-shadow:   0 1px 4px rgba(0, 0, 0, 0.08);
+
+// Links
+$link-color:       #106d20;
+$link-hover-color: #00450d;
+
+// Inputs
+$input-bg:               #eceeec;
+$input-border-color:     transparent;
+$input-border-radius:    0.25rem;
+$input-focus-bg:         #ffffff;
+$input-focus-border-color: rgba(0, 69, 13, 0.3);
+$input-focus-box-shadow: 0 0 0 0.2rem rgba(0, 69, 13, 0.15);
+$input-placeholder-color: rgba(65, 73, 62, 0.5);
+$input-padding-y:        0.75rem;
+$input-padding-x:        1rem;
+
+// Select
+$form-select-bg:             #eceeec;
+$form-select-border-color:   transparent;
+$form-select-focus-border-color: rgba(0, 69, 13, 0.3);
+$form-select-focus-box-shadow: 0 0 0 0.2rem rgba(0, 69, 13, 0.15);
+
+// Navbar
+$navbar-padding-y:            0.875rem;
+$navbar-light-color:          #191c1b;
+$navbar-light-hover-color:    #00450d;
+$navbar-light-active-color:   #00450d;
+$navbar-light-brand-color:    #00450d;
+
+// Table
+$table-striped-bg: #f2f4f2;
+$table-hover-bg:   rgba(0, 69, 13, 0.04);
+$table-border-color: #e1e3e1;
+
+// Modal
+$modal-backdrop-bg:      #191c1b;
+$modal-backdrop-opacity: 0.45;
+$modal-border-radius:    0.5rem;
+$modal-content-border-color: transparent;
+
+// Nav tabs
+$nav-tabs-border-color:         #e1e3e1;
+$nav-tabs-link-active-color:    #90d689;
+$nav-tabs-link-active-bg:       #1b5e20;
+$nav-tabs-link-active-border-color: transparent;
+
+// Utilities
+$enable-negative-margins: true;
+$enable-rounded:          true;
+$enable-shadows:          false;
+
+// Spacer / Grid
+$spacer: 1rem;
+$grid-gutter-width: 1.5rem;
