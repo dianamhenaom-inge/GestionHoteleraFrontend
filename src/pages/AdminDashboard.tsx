@@ -215,10 +215,10 @@ const AdminDashboard: React.FC = () => {
       {/* Page header */}
       <div className="mb-4">
         <h1 className="fw-bold mb-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
-          Centro de Control
+          Gestión
         </h1>
         <p className="text-muted">
-          Gestiona el inventario de tu propiedad y los compromisos de los huéspedes a través de
+          Hotel Ganadero el Ovidio, Gestiona el inventario de tu propiedad y los compromisos de los huéspedes a través de
           nuestra interfaz editorial lunar.
         </p>
       </div>
@@ -245,10 +245,6 @@ const AdminDashboard: React.FC = () => {
             <h2 className="fw-bold mb-0 fs-4" style={{ fontFamily: 'Manrope, sans-serif' }}>
               Gestión de Reservas
             </h2>
-            <span className="api-badge">
-              <Code size={12} />
-              GET /api/books
-            </span>
           </div>
           <Card>
             <Table columns={bookingsColumns} data={bookings} emptyMessage="No hay reservas registradas" />
@@ -264,10 +260,6 @@ const AdminDashboard: React.FC = () => {
               Gestión de Habitaciones
             </h2>
             <div className="d-flex align-items-center gap-3">
-              <span className="api-badge">
-                <Code size={12} />
-                GET /api/rooms
-              </span>
               <Button variant="primary" onClick={() => handleOpenRoomModal()} icon={<Plus size={18} />}>
                 Nueva Habitación
               </Button>

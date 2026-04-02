@@ -1,7 +1,6 @@
-// ============================================================
 // Mock API — respuestas simuladas para desarrollo/pruebas
 // Activar con VITE_USE_MOCK=true en .env
-// ============================================================
+
 
 import type { Room, Book } from '../types';
 
@@ -35,18 +34,25 @@ function makeToken(
 const MOCK_USERS = [
   {
     id: 'admin-001',
-    name: 'Admin Hotel',
+    name: 'Admin Diana',
     email: 'admin@hotel.com',
     password: 'admin123',
     role: 'ADMIN' as const,
   },
   {
     id: 'client-001',
-    name: 'Juan García',
+    name: 'Ernesto Guevara',
     email: 'cliente@hotel.com',
-    password: 'cliente123',
+    password: 'echecliente123',
     role: 'CLIENT' as const,
   },
+  {
+    id: 'client-002',
+    name: 'Harold Morales',
+    email: 'cliente2@hotel.com',
+    password: 'chefcitocliente123',
+    role: 'CLIENT' as const,
+  }
 ];
 
 // ─── Datos mock ───────────────────────────────────────────────────────────────
@@ -54,55 +60,55 @@ const MOCK_USERS = [
 const SEED_ROOMS: Room[] = [
   {
     id: 'room-001',
-    type: 'Suite Lunar',
+    type: 'SUITE',
     description:
       'Nuestra suite insignia con vista panorámica al bosque. Decoración minimalista con tonos verdes y madera natural.',
     capacity: 2,
-    price: 350,
+    price: 350000,
     status: 'AVAILABLE',
     imageUrl:
       'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=300&fit=crop&q=80',
   },
   {
     id: 'room-002',
-    type: 'Deluxe Forestal',
+    type: 'DOBLE',
     description:
       'Habitación deluxe con balcón privado y jacuzzi. Perfecta para parejas en busca de tranquilidad.',
     capacity: 2,
-    price: 220,
+    price: 220000,
     status: 'AVAILABLE',
     imageUrl:
       'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&h=300&fit=crop&q=80',
   },
   {
     id: 'room-003',
-    type: 'Superior Luna',
+    type: 'SUITE',
     description:
       'Amplia habitación familiar con dos camas Queen y zona de estar. Vistas al jardín zen.',
     capacity: 4,
-    price: 180,
+    price: 180000,
     status: 'AVAILABLE',
     imageUrl:
       'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop&q=80',
   },
   {
     id: 'room-004',
-    type: 'Estándar Sereno',
+    type: 'DOBLE',
     description:
       'Habitación cómoda con cama doble. Perfecta para viajes de negocios o escapadas cortas.',
     capacity: 1,
-    price: 120,
+    price: 120000,
     status: 'OCCUPIED',
     imageUrl:
       'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=400&h=300&fit=crop&q=80',
   },
   {
     id: 'room-005',
-    type: 'Bungalow Bosque',
+    type: 'SENCILLA',
     description:
       'Bungalow independiente rodeado de vegetación. Incluye cocina equipada y terraza privada.',
     capacity: 3,
-    price: 290,
+    price: 290000,
     status: 'MAINTENANCE',
     imageUrl:
       'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=400&h=300&fit=crop&q=80',
@@ -115,7 +121,7 @@ const SEED_BOOKINGS: Book[] = [
     roomId: 'room-001',
     room: SEED_ROOMS[0],
     userId: 'client-001',
-    userName: 'Juan García',
+    userName: 'Ernesto Guevara',
     startDate: '2026-04-05',
     endDate: '2026-04-09',
     status: 'CONFIRMED',
@@ -126,10 +132,10 @@ const SEED_BOOKINGS: Book[] = [
     roomId: 'room-002',
     room: SEED_ROOMS[1],
     userId: 'client-001',
-    userName: 'Juan García',
+    userName: 'Ernesto Guevara',
     startDate: '2026-05-01',
     endDate: '2026-05-03',
-    status: 'PENDING',
+    status: 'CONFIRMED',
     createdAt: '2026-03-25T14:30:00Z',
   },
   {
@@ -137,7 +143,7 @@ const SEED_BOOKINGS: Book[] = [
     roomId: 'room-004',
     room: SEED_ROOMS[3],
     userId: 'client-002',
-    userName: 'María López',
+    userName: 'Harold Morales',
     startDate: '2026-03-28',
     endDate: '2026-04-01',
     status: 'CONFIRMED',
@@ -250,7 +256,7 @@ export function handleMock(
       roomId: d?.roomId,
       room,
       userId: 'client-001',
-      userName: 'Juan García',
+      userName: 'Ernesto Guevara',
       startDate: d?.startDate,
       endDate: d?.endDate,
       status: 'CONFIRMED',

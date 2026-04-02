@@ -109,12 +109,6 @@ const Login: React.FC = () => {
         <Link to="/register" className="text-success fw-medium text-decoration-none small">
           ¿No tienes cuenta? Regístrate
         </Link>
-        <div className="mt-3 d-flex justify-content-center">
-          <span className="api-badge">
-            <Code size={12} />
-            POST /api/auth/login
-          </span>
-        </div>
       </div>
     </AuthLayout>
   );

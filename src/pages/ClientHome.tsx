@@ -149,10 +149,10 @@ const ClientHome: React.FC = () => {
       {/* Welcome header */}
       <div className="mb-5">
         <h1 className="fw-bold mb-1" style={{ fontFamily: 'Manrope, sans-serif' }}>
-          Bienvenido de nuevo, Juan.
+          Bienvenido de nuevo.
         </h1>
         <p className="text-muted fst-italic fs-6">
-          "Sumergiéndose en la serenidad de la Luna Forestal."
+          "Sumergiéndose en la serenidad de la Naturaleza y los animales"
         </p>
       </div>
 
@@ -229,10 +229,6 @@ const ClientHome: React.FC = () => {
           <h2 className="fw-bold mb-0 fs-4" style={{ fontFamily: 'Manrope, sans-serif' }}>
             Mis Reservas
           </h2>
-          <span className="api-badge">
-            <Code size={12} />
-            GET /api/books/my
-          </span>
         </div>
         <Card>
           <Table columns={bookingsColumns} data={bookings} emptyMessage="No tienes reservas" />
@@ -285,14 +281,6 @@ const ClientHome: React.FC = () => {
         />
       </Modal>
 
-      {/* FAB */}
-      <button
-        className="fab-btn"
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        aria-label="Volver arriba"
-      >
-        <Plus size={26} />
-      </button>
     </DashboardLayout>
   );
 };
