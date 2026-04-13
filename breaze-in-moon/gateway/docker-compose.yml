@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: gateway
+    restart: always
+    environment:
+      SERVER_PORT: 9090
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      AUTH_SERVICE_URL: http://auth-app:8080
+      ROOMS_SERVICE_URL: http://rooms-app:8080
+      BOOKS_SERVICE_URL: http://books-app:8080
+    ports:
+      - "9090:9090"
+    networks:
+      - breaze-network
+
+networks:
+  breaze-network:
+    external: true
