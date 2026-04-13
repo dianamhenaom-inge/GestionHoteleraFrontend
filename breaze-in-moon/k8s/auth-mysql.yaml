@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-mysql-init
+  namespace: breaze
+data:
+  authdb.sql: |
+    CREATE TABLE IF NOT EXISTS roles (
+        id   BIGINT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(50) NOT NULL UNIQUE
+    );
+
+    CREATE TABLE IF NOT EXISTS users (
+        id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+        name       VARCHAR(100) NOT NULL,
+        email      VARCHAR(100) NOT NULL UNIQUE,
+        password   VARCHAR(255) NOT NULL,
+        active     BOOLEAN      NOT NULL DEFAULT TRUE,
+        created_at TIMESTAMP             DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS user_roles (
+        user_id BIGINT NOT NULL,
+        role_id BIGINT NOT NULL,
+        PRIMARY KEY (user_id, role_id),
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (role_id) REFERENCES roles (id)
+    );
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: auth-mysql-pvc
+  namespace: breaze
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-mysql
+  namespace: breaze
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-mysql
+  template:
+    metadata:
+      labels:
+        app: auth-mysql
+    spec:
+      containers:
+        - name: auth-mysql
+          image: mysql:8.4.6
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: breaze-secrets
+                  key: db-root-password
+            - name: MYSQL_DATABASE
+              value: authdb
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: breaze-secrets
+                  key: db-username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: breaze-secrets
+                  key: db-password
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-padmin123"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 6
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: auth-mysql-pvc
+        - name: init-sql
+          configMap:
+            name: auth-mysql-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-mysql
+  namespace: breaze
+spec:
+  selector:
+    app: auth-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
