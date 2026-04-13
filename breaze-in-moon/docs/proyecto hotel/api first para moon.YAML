@@ -1,0 +1,391 @@
+openapi: '3.0.0'
+info:
+  title: Sufriendo en semana santa con Breaze in the Moon API
+  version: 1.0.0
+  description: |
+    API Gateway del sistema de gestión hotelera basado en microservicios
+
+    Integrantes:
+    - Harold Morales
+    - Ernesto Guevara
+    - Diana Henao
+
+tags:
+  - name: Auth
+  - name: Rooms
+  - name: Books
+  - name: Audit
+
+paths:
+
+  # ---------------- AUTH ----------------
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Registrar cliente
+      description: Endpoint público usado por CLIENT para registrarse en la plataforma
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión
+      description: Endpoint público para CLIENT o ADMIN que retorna un JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  # ---------------- ROOMS ----------------
+  /api/rooms:
+    get:
+      tags: [Rooms]
+      summary: Listar habitaciones
+      description: ADMIN consulta todas las habitaciones del sistema
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+    post:
+      tags: [Rooms]
+      summary: Crear habitación
+      description: ADMIN registra habitaciones usando valores de tabla maestra
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /api/rooms/{id}:
+    get:
+      tags: [Rooms]
+      summary: Obtener habitación
+      description: ADMIN consulta el detalle de una habitación específica
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+    put:
+      tags: [Rooms]
+      summary: Actualizar habitación
+      description: ADMIN actualiza toda la información de la habitación
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /api/rooms/{id}/status:
+    patch:
+      tags: [Rooms]
+      summary: Cambiar estado
+      description: ADMIN cambia el estado de la habitación (AVAILABLE, OCCUPIED, MAINTENANCE)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /api/rooms/available:
+    get:
+      tags: [Rooms]
+      summary: Listar habitaciones disponibles
+      description: CLIENT consulta únicamente habitaciones con estado AVAILABLE
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  # ---------------- BOOKS ----------------
+
+  /api/books:
+    get:
+      tags: [Books]
+      summary: Listar reservas
+      description: ADMIN consulta todas las reservas del sistema
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+    post:
+      tags: [Books]
+      summary: Crear reserva
+      description: CLIENT crea una reserva y el sistema valida disponibilidad
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /api/books/{id}:
+    get:
+      tags: [Books]
+      summary: Obtener reserva
+      description: ADMIN consulta el detalle de una reserva específica
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+    patch:
+      tags: [Books]
+      summary: Actualizar o cancelar reserva
+      description: CLIENT o ADMIN cancela o actualiza la reserva
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBook'
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /api/books/my:
+    get:
+      tags: [Books]
+      summary: Mis reservas
+      description: CLIENT consulta únicamente sus reservas
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  # ---------------- AUDIT ----------------
+  /api/audit/events:
+    post:
+      tags: [Audit]
+      summary: Registrar evento
+      description: Endpoint interno invocado por el Gateway para auditoría
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditEvent'
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+
+    Success:
+      description: Operación exitosa
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+    Unauthorized:
+      description: No autenticado (Falla de Gateway o Token inválido)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+    Forbidden:
+      description: No autorizado (El usuario no tiene el rol necesario para esta operación)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+    InternalError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+  schemas:
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          nullable: true
+
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+
+    Room:
+      type: object
+      properties:
+        type:
+          type: string
+        description:
+          type: string
+        capacity:
+          type: integer
+        price:
+          type: number
+        status:
+          type: string
+
+    Book:
+      type: object
+      required:
+        - roomId
+        - startDate
+        - endDate
+      properties:
+        roomId:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    UpdateBook:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [ACTIVE, CANCELLED]
+
+    AuditEvent:
+      type: object
+      properties:
+        event:
+          type: string
+        userId:
+          type: string
+        data:
+          type: object       type: object
