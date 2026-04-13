@@ -1,0 +1,159 @@
+services:
+
+  # ─── Bases de datos ──────────────────────────────────────────────────────────
+  auth-mysql:
+    image: mysql:8.4.6
+    container_name: auth-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: admin123
+    volumes:
+      - auth-data:/var/lib/mysql
+      - ./auth/src/main/resources/authdb.sql:/docker-entrypoint-initdb.d/authdb.sql
+    networks:
+      - breaze-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rooms-mysql:
+    image: mysql:8.4.6
+    container_name: rooms-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: roomsdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: admin123
+    volumes:
+      - rooms-data:/var/lib/mysql
+      - ./rooms/src/main/resources/roomsdb.sql:/docker-entrypoint-initdb.d/roomsdb.sql
+    networks:
+      - breaze-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  books-mysql:
+    image: mysql:8.4.6
+    container_name: books-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: booksdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: admin123
+    volumes:
+      - books-data:/var/lib/mysql
+      - ./books/src/main/resources/booksdb.sql:/docker-entrypoint-initdb.d/booksdb.sql
+    networks:
+      - breaze-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Microservicios ──────────────────────────────────────────────────────────
+  auth-app:
+    build: ./auth
+    container_name: auth-app
+    restart: always
+    depends_on:
+      auth-mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://auth-mysql:3306/authdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      AUDIT_URL: http://gateway:9090/api/audit/events
+    networks:
+      - breaze-network
+
+  rooms-app:
+    build: ./rooms
+    container_name: rooms-app
+    restart: always
+    depends_on:
+      rooms-mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://rooms-mysql:3306/roomsdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      SERVICE_SECRET: breaze-internal-secret-2024
+      AUDIT_URL: http://gateway:9090/api/audit/events
+    networks:
+      - breaze-network
+
+  books-app:
+    build: ./books
+    container_name: books-app
+    restart: always
+    depends_on:
+      books-mysql:
+        condition: service_healthy
+      rooms-app:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://books-mysql:3306/booksdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      SERVICE_SECRET: breaze-internal-secret-2024
+      ROOMS_SERVICE_URL: http://rooms-app:8080
+      AUDIT_URL: http://gateway:9090/api/audit/events
+    networks:
+      - breaze-network
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    restart: always
+    depends_on:
+      - auth-app
+      - rooms-app
+      - books-app
+    environment:
+      SERVER_PORT: 9090
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      AUTH_SERVICE_URL: http://auth-app:8080
+      ROOMS_SERVICE_URL: http://rooms-app:8080
+      BOOKS_SERVICE_URL: http://books-app:8080
+      AUDIT_LAMBDA_URL: https://bfynoncfwl.execute-api.us-east-2.amazonaws.com/default/events
+    ports:
+      - "9090:9090"
+    networks:
+      - breaze-network
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: always
+    depends_on:
+      - gateway
+    ports:
+      - "3000:80"
+    networks:
+      - breaze-network
+
+volumes:
+  auth-data:
+  rooms-data:
+  books-data:
+
+networks:
+  breaze-network:
+    name: breaze-network
