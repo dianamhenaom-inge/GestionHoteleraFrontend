@@ -1,0 +1,47 @@
+services:
+  mysql:
+    image: mysql:8.4.6
+    container_name: auth-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: admin123
+    ports:
+      - "3308:3306"
+    volumes:
+      - auth-data:/var/lib/mysql
+      - ./src/main/resources/authdb.sql:/docker-entrypoint-initdb.d/authdb.sql
+    networks:
+      - auth-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: auth-app
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    ports:
+      - "8081:8080"
+    networks:
+      - auth-network
+
+volumes:
+  auth-data:
+
+networks:
+  auth-network:
+    name: auth-network
