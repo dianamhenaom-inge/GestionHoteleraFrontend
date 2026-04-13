@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: breaze
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: breaze-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9090
+          env:
+            - name: SERVER_PORT
+              value: "9090"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: breaze-secrets
+                  key: jwt-secret
+            - name: AUTH_SERVICE_URL
+              value: http://auth-app:8080
+            - name: ROOMS_SERVICE_URL
+              value: http://rooms-app:8080
+            - name: BOOKS_SERVICE_URL
+              value: http://books-app:8080
+            - name: AUDIT_LAMBDA_URL
+              valueFrom:
+                secretKeyRef:
+                  name: breaze-secrets
+                  key: audit-lambda-url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: breaze
+spec:
+  selector:
+    app: gateway
+  ports:
+    - port: 9090
+      targetPort: 9090

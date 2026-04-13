@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rooms-mysql-init
+  namespace: breaze
+data:
+  roomsdb.sql: |
+    CREATE TABLE IF NOT EXISTS rooms (
+        id          BIGINT         AUTO_INCREMENT PRIMARY KEY,
+        number      VARCHAR(20)    NOT NULL UNIQUE,
+        type        VARCHAR(50)    NOT NULL,
+        description TEXT,
+        capacity    INT            NOT NULL,
+        price       DECIMAL(10, 2) NOT NULL,
+        status      VARCHAR(20)    NOT NULL DEFAULT 'AVAILABLE'
+    );
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rooms-mysql-pvc
+  namespace: breaze
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rooms-mysql
+  namespace: breaze
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rooms-mysql
+  template:
+    metadata:
+      labels:
+        app: rooms-mysql
+    spec:
+      containers:
+        - name: rooms-mysql
+          image: mysql:8.4.6
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: breaze-secrets
+                  key: db-root-password
+            - name: MYSQL_DATABASE
+              value: roomsdb
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: breaze-secrets
+                  key: db-username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: breaze-secrets
+                  key: db-password
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-padmin123"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 6
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rooms-mysql-pvc
+        - name: init-sql
+          configMap:
+            name: rooms-mysql-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rooms-mysql
+  namespace: breaze
+spec:
+  selector:
+    app: rooms-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
