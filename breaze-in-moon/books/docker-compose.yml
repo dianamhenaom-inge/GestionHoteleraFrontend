@@ -1,0 +1,49 @@
+services:
+  mysql:
+    image: mysql:8.4.6
+    container_name: books-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: booksdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: admin123
+    ports:
+      - "3309:3306"
+    volumes:
+      - books-data:/var/lib/mysql
+      - ./src/main/resources/booksdb.sql:/docker-entrypoint-initdb.d/booksdb.sql
+    networks:
+      - books-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: books-app
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/booksdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      SERVICE_SECRET: breaze-internal-secret-2024
+      ROOMS_SERVICE_URL: http://rooms-app:8080/api/rooms
+    ports:
+      - "8083:8080"
+    networks:
+      - books-network
+
+volumes:
+  books-data:
+
+networks:
+  books-network:
+    name: books-network
