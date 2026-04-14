@@ -41,12 +41,16 @@ export default function ClientDashboard() {
 
   return (
     <>
-      <div className="tabs">
-        <button className={`tab ${tab === 'rooms' ? 'active' : ''}`} onClick={() => setTab('rooms')}>Habitaciones disponibles</button>
-        <button className={`tab ${tab === 'bookings' ? 'active' : ''}`} onClick={() => setTab('bookings')}>Mis reservas</button>
-      </div>
+      <ul className="hotel-tabs">
+        <li><button className={`hotel-tab ${tab === 'rooms' ? 'active' : ''}`} onClick={() => setTab('rooms')}>Habitaciones disponibles</button></li>
+        <li><button className={`hotel-tab ${tab === 'bookings' ? 'active' : ''}`} onClick={() => setTab('bookings')}>Mis reservas</button></li>
+      </ul>
 
       <div className="page">
+        <div className="page-header">
+          <h1 className="page-title">Bienvenido de nuevo.</h1>
+          <p className="page-subtitle" style={{ fontStyle: 'italic' }}>"Sumergiéndose en la serenidad de la Naturaleza y los animales"</p>
+        </div>
         {msg && <p className="success">{msg}</p>}
 
         {tab === 'rooms' && (
@@ -119,8 +123,7 @@ export default function ClientDashboard() {
             <p><strong>Precio:</strong> ${modal.price} / noche</p>
             {error && <p className="error">{error}</p>}
             <div className="btn-group">
-              <button className="btn" onClick={() => setModal(null)}
-                style={{ background: '#f3f4f6' }}>Cancelar</button>
+              <button className="btn btn-secondary" onClick={() => setModal(null)}>Cancelar</button>
               <button className="btn btn-primary" onClick={handleBook}>Confirmar reserva</button>
             </div>
           </div>

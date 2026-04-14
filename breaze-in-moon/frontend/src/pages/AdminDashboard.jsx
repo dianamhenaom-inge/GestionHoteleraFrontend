@@ -55,12 +55,16 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="tabs">
-        <button className={`tab ${tab === 'rooms' ? 'active' : ''}`} onClick={() => setTab('rooms')}>Habitaciones</button>
-        <button className={`tab ${tab === 'bookings' ? 'active' : ''}`} onClick={() => setTab('bookings')}>Reservas</button>
-      </div>
+      <ul className="hotel-tabs">
+        <li><button className={`hotel-tab ${tab === 'rooms' ? 'active' : ''}`} onClick={() => setTab('rooms')}>Habitaciones</button></li>
+        <li><button className={`hotel-tab ${tab === 'bookings' ? 'active' : ''}`} onClick={() => setTab('bookings')}>Reservas</button></li>
+      </ul>
 
       <div className="page">
+        <div className="page-header">
+          <h1 className="page-title">Gestión</h1>
+          <p className="page-subtitle">Gestiona el inventario de tu propiedad y los compromisos de los huéspedes.</p>
+        </div>
 
         {/* ── ROOMS ── */}
         {tab === 'rooms' && (
@@ -69,7 +73,7 @@ export default function AdminDashboard() {
               <h2>Habitaciones</h2>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-                  style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #ddd', fontSize: '0.875rem' }}>
+                  className="filter-select">
                   <option value="">Todos los estados</option>
                   {STATUSES.map(s => <option key={s} value={s}>{STATUS_ES[s]}</option>)}
                 </select>
@@ -91,8 +95,7 @@ export default function AdminDashboard() {
                       <div className="btn-group">
                         <button className="btn btn-warning btn-sm" onClick={() => openEdit(r)}>Editar</button>
                         {STATUSES.filter(s => s !== r.status).map(s => (
-                          <button key={s} className="btn btn-sm"
-                            style={{ background: '#e0e7ff', color: '#3730a3' }}
+                          <button key={s} className="btn btn-secondary btn-sm"
                             onClick={() => handleStatusChange(r.id, s)}>
                             → {STATUS_ES[s]}
                           </button>
@@ -180,8 +183,7 @@ export default function AdminDashboard() {
               </div>
               {roomError && <p className="error">{roomError}</p>}
               <div className="btn-group">
-                <button type="button" className="btn" onClick={() => setShowForm(false)}
-                  style={{ background: '#f3f4f6' }}>Cancelar</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Cancelar</button>
                 <button type="submit" className="btn btn-primary">
                   {editRoom ? 'Guardar cambios' : 'Crear habitación'}
                 </button>

@@ -28,34 +28,72 @@ export default function AuthPage({ onLogin }) {
   }
 
   return (
-    <div className="form-box">
-      <h2>{mode === 'login' ? 'Iniciar sesión' : 'Registro'}</h2>
-      <form onSubmit={handleSubmit}>
-        {mode === 'register' && (
-          <div className="form-group">
-            <label>Nombre</label>
-            <input value={form.name} onChange={set('name')} required placeholder="Tu nombre" />
+    <div className="auth-layout">
+
+      {/* ── Hero section ── */}
+      <div className="auth-hero">
+        <img
+          src="https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1200&auto=format&fit=crop"
+          alt="Luxury hotel room view"
+          className="hero-image"
+        />
+        <div className="hero-content">
+          <div>
+            <h1>Breaze in the Moon - Semana Santa</h1>
+            <p>Gestión hotelera diseñada para la calma y la eficiencia absoluta.</p>
           </div>
-        )}
-        <div className="form-group">
-          <label>Email</label>
-          <input type="email" value={form.email} onChange={set('email')} required placeholder="correo@ejemplo.com" />
         </div>
-        <div className="form-group">
-          <label>Contraseña</label>
-          <input type="password" value={form.password} onChange={set('password')} required placeholder="••••••••" />
+      </div>
+
+      {/* ── Form section ── */}
+      <div className="auth-form-section">
+        <div className="auth-form-inner">
+
+          <div className="auth-logo">
+            <span>Gestión Hotelera - Breaze in the Moon</span>
+          </div>
+
+          <h2 className="auth-title">
+            {mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+          </h2>
+          <p className="auth-subtitle">
+            {mode === 'login'
+              ? 'Accede a tu cuenta para gestionar tu propiedad con el estándar Lunar.'
+              : 'Crea tu cuenta para comenzar a gestionar reservas.'}
+          </p>
+
+          <form onSubmit={handleSubmit}>
+            {mode === 'register' && (
+              <div className="form-group">
+                <label>Nombre</label>
+                <input value={form.name} onChange={set('name')} required placeholder="Tu nombre" />
+              </div>
+            )}
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" value={form.email} onChange={set('email')} required placeholder="correo@ejemplo.com" />
+            </div>
+            <div className="form-group">
+              <label>Contraseña</label>
+              <input type="password" value={form.password} onChange={set('password')} required placeholder="••••••••" />
+            </div>
+            {error && <p className="error">{error}</p>}
+            <button className="btn btn-primary" type="submit" disabled={loading}>
+              {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Registrarse'}
+            </button>
+          </form>
+
+          <p className="form-link">
+            {mode === 'login'
+              ? <>¿No tienes cuenta? <span onClick={() => { setMode('register'); setError('') }}>Regístrate</span></>
+              : <>¿Ya tienes cuenta? <span onClick={() => { setMode('login'); setError('') }}>Inicia sesión</span></>
+            }
+          </p>
+
+
         </div>
-        {error && <p className="error">{error}</p>}
-        <button className="btn btn-primary" type="submit" disabled={loading}>
-          {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Registrarse'}
-        </button>
-      </form>
-      <p className="form-link">
-        {mode === 'login'
-          ? <>¿No tienes cuenta? <span onClick={() => { setMode('register'); setError('') }}>Regístrate</span></>
-          : <>¿Ya tienes cuenta? <span onClick={() => { setMode('login'); setError('') }}>Inicia sesión</span></>
-        }
-      </p>
+      </div>
+
     </div>
   )
 }
