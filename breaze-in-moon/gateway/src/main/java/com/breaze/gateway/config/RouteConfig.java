@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
 
+import java.net.URI;
+
 import static org.springframework.web.servlet.function.RequestPredicates.path;
 
 @Configuration
@@ -25,6 +27,17 @@ public class RouteConfig {
 
     @Value("${AUDIT_LAMBDA_URL:https://bfynoncfwl.execute-api.us-east-2.amazonaws.com/default/events}")
     private String auditLambdaUrl;
+
+    private String getAuditBaseUrl() {
+        URI uri = URI.create(auditLambdaUrl);
+        return uri.getScheme() + "://" + uri.getAuthority();
+    }
+
+    private String getAuditPath() {
+        URI uri = URI.create(auditLambdaUrl);
+        String path = uri.getPath();
+        return (path == null || path.isBlank()) ? "/" : path;
+    }
 
     @Bean
     public RouterFunction<ServerResponse> authRoute() {
@@ -54,7 +67,8 @@ public class RouteConfig {
     public RouterFunction<ServerResponse> auditRoute() {
         return GatewayRouterFunctions.route("audit-route")
                 .route(path("/api/audit/events"), HandlerFunctions.http())
-                .before(BeforeFilterFunctions.uri(auditLambdaUrl))
+                .before(BeforeFilterFunctions.uri(getAuditBaseUrl()))
+                .before(BeforeFilterFunctions.setPath(getAuditPath()))
                 .build();
     }
 }

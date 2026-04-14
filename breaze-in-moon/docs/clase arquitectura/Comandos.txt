@@ -1,0 +1,143 @@
+# 🛠️ Comandos de Desarrollo — Kubernetes, Minikube & Docker
+
+Referencia rápida de comandos para el flujo de desarrollo local con Minikube, Docker y Kubernetes.
+
+---
+
+## 🔧 Configuración de Contexto
+
+### Cambiar contexto de kubectl a Minikube
+bash
+kubectl config use-context minikube
+
+Establece minikube como el clúster activo en kubectl. Necesario cuando se trabaja con múltiples contextos (ej. varios clústeres o entornos).
+
+---
+
+## 🐳 Docker
+
+### Detener todos los contenedores en ejecución
+bash
+docker stop $(docker ps -q)
+
+Obtiene los IDs de todos los contenedores activos con docker ps -q y los detiene en bloque. Útil para limpiar el entorno rápidamente.
+
+### Reiniciar servicios con Docker Compose
+bash
+docker compose down && docker compose up --build
+
+Baja todos los servicios definidos en docker-compose.yml, reconstruye las imágenes y los vuelve a levantar. Esencial cuando hay cambios en el código o en el Dockerfile.
+
+---
+
+## ☸️ Minikube
+
+### Iniciar el clúster de Minikube
+bash
+minikube start
+
+Arranca el clúster local de Kubernetes. Si no existe, lo crea con la configuración por defecto.
+
+### Apuntar Docker al daemon de Minikube (con perfil explícito)
+bash
+eval $(minikube -p minikube docker-env)
+
+Configura las variables de entorno del shell para que los comandos docker build usen el daemon interno de Minikube (en lugar del daemon local del sistema). El flag -p minikube especifica el perfil.
+
+### Apuntar Docker al daemon de Minikube (perfil por defecto)
+bash
+eval $(minikube docker-env)
+
+Igual que el anterior, pero sin especificar perfil — usa el perfil activo por defecto. Las imágenes construidas después de este comando estarán disponibles directamente dentro del clúster *sin necesidad de un registry externo*.
+
+### Abrir el dashboard de Kubernetes
+bash
+minikube dashboard
+
+Lanza una interfaz web visual para inspeccionar recursos del clúster (pods, deployments, servicios, etc.).
+
+### Habilitar el controlador de Ingress
+bash
+minikube addons enable ingress
+
+Activa el addon de NGINX Ingress Controller dentro de Minikube, permitiendo enrutar tráfico externo a los servicios del clúster mediante reglas de Ingress.
+
+### Exponer servicios al host (tunnel)
+bash
+sudo minikube tunnel
+
+Crea un túnel de red para que los servicios de tipo LoadBalancer sean accesibles desde el sistema host en localhost. Requiere sudo por los permisos de red necesarios.
+
+---
+
+## 🏗️ Build de Imágenes Docker
+
+> ⚠️ Ejecutar *después* de eval $(minikube docker-env) para que las imágenes queden dentro del clúster.
+
+bash
+docker build -t auth:latest ./auth
+docker build -t productos:latest ./Productos
+docker build -t gateway:latest ./gateway
+
+
+| Imagen       | Contexto        | Descripción                        |
+|--------------|-----------------|------------------------------------|
+| auth       | ./auth        | Servicio de autenticación          |
+| productos  | ./Productos   | Servicio de gestión de productos   |
+| gateway    | ./gateway     | API Gateway / punto de entrada     |
+
+---
+
+## 📦 Despliegue en Kubernetes
+
+### Aplicar manifiestos con Kustomize
+bash
+kubectl apply -k k8s/
+
+Aplica todos los recursos definidos en el directorio k8s/ usando Kustomize (-k). Crea o actualiza deployments, servicios, configmaps, etc.
+
+### Monitorear el estado de los pods en tiempo real
+bash
+kubectl get pods -n demo -w
+
+Lista los pods en el namespace demo y se queda en modo watch (-w), actualizando la salida automáticamente cuando hay cambios de estado.
+
+---
+
+## 🗄️ Base de Datos (MySQL)
+
+### Conectarse al pod de MySQL con consola interactiva
+bash
+kubectl exec -it deployment/auth-mysql -n demo -- mysql -u root -p
+
+Abre una sesión de mysql directamente dentro del pod del deployment auth-mysql. Solicita la contraseña del usuario root.
+
+### Redirigir el puerto de MySQL al host
+bash
+kubectl port-forward deployment/auth-mysql 3308:3306 -n demo
+
+Redirige el puerto 3306 del pod al puerto 3308 de tu máquina local. Permite conectarse a la base de datos con herramientas locales como DBeaver, TablePlus, etc. en localhost:3308.
+
+---
+
+## 📋 Logs
+
+### Ver logs en tiempo real del servicio auth
+bash
+kubectl logs -f deployment/auth -n demo
+
+Sigue (-f) los logs del deployment auth en el namespace demo en tiempo real. Equivalente a tail -f para Kubernetes.
+
+---
+
+## 🔄 Flujo de Trabajo Típico
+
+
+1. minikube start
+2. eval $(minikube docker-env)
+3. docker build -t auth:latest ./auth
+   docker build -t productos:latest ./Productos
+   docker build -t gateway:latest ./gateway
+4. kubectl apply -k k8s/
+5. kubectl get pods -n demo -w
+6. sudo minikube tunnel   (si usas LoadBalancer)
